@@ -1,5 +1,5 @@
 metadata {
-	definition (name: "Virtual Thermostat Device",
+	definition (name: "Virtual Thermostat",
     namespace: "piratemedia/smartthings",
     author: "Eliot S.",
     mnmn: "SmartThings", 
@@ -10,6 +10,7 @@ metadata {
 		capability "Thermostat"
 		capability "Thermostat Mode"
 		capability "Thermostat Heating Setpoint"
+		capability "Thermostat Cooling Setpoint"
 		capability "Thermostat Operating State"
 		capability "Configuration"
 		capability "Refresh"
@@ -19,11 +20,14 @@ metadata {
         
 		command "offbtn"
 		command "heatbtn"
+		command "coolbtn"
 		command "levelUpDown"
 		command "levelUp"
 		command "levelDown"
 		command "heatingSetpointUp"
+		command "coolingSetpointUp"
 		command "heatingSetpointDown"
+		command "coolingSetpointDown"
 		command "changeMode"
 		command "setVirtualTemperature", ["number"]
 		command "setHeatingStatus", ["string"]
@@ -50,41 +54,55 @@ metadata {
 			tileAttribute("device.thermostatOperatingState", key: "OPERATING_STATE") {
 				attributeState("idle",		    backgroundColor: "#44B621")
 				attributeState("heating",	    backgroundColor: "#FFA81E")
+				attributeState("cooling",	    backgroundColor: "#1EF8FF")
 				attributeState("off",		    backgroundColor: "#ddcccc")
 				attributeState("pending heat",	backgroundColor: "#e60000")
+				attributeState("pending cool",	backgroundColor: "#000FE6")
 			}
             
 			tileAttribute("device.thermostatMode", key: "THERMOSTAT_MODE") {
 				attributeState("off", label:'Off')
 				attributeState("heat", label:'Heat')
+				attributeState("cool", label:'Cool')
 			}
             
 			tileAttribute("device.thermostatSetpoint", key: "HEATING_SETPOINT") {
 				attributeState("default", label:'${currentValue}')
 			}
+            
+			tileAttribute("device.thermostatSetpoint", key: "COOLING_SETPOINT") {
+				attributeState("default", label:'${currentValue}')
+			}
+
 		}
         
 		valueTile("temp2", "device.temperature", width: 2, height: 2, decoration: "flat") {
-			state("default", label:'${currentValue}°', icon:"https://raw.githubusercontent.com/eliotstocker/SmartThings-VirtualThermostat-WithDTH/master/device.png",
+			state("default", label:'${currentValue}°', icon:"https://dev.ryancarmichael.com/VirtualThermostat/device.png",
 					backgroundColors: getTempColors(), canChangeIcon: true)
 		}
         
 		standardTile("thermostatMode", "device.thermostatMode", width:2, height:2, decoration: "flat") {
-			state("off", 	action:"changeMode", nextState: "updating", icon: "https://raw.githubusercontent.com/tonesto7/nest-manager/master/Images/Devices/off_icon.png")
-			state("heat", 	action:"changeMode", nextState: "updating", icon: "https://raw.githubusercontent.com/tonesto7/nest-manager/master/Images/Devices/heat_icon.png")
-			state("Updating", label:"", icon: "https://raw.githubusercontent.com/tonesto7/nest-manager/master/Images/Devices/cmd_working.png")
-		}
-        
-		standardTile("offBtn", "device.off", width:1, height:1, decoration: "flat") {
-			state("Off", action: "offbtn", icon: "https://raw.githubusercontent.com/tonesto7/nest-manager/master/Images/Devices/off_icon.png")
+			state("heat", 	action:"changeMode", nextState: "updating", icon: "https://dev.ryancarmichael.com/VirtualThermostat/heat_icon.png")
+			state("cool", 	action:"changeMode", nextState: "updating", icon: "https://dev.ryancarmichael.com/VirtualThermostat/cool_icon.png")
+			state("off", 	action:"changeMode", nextState: "updating", icon: "https://dev.ryancarmichael.com/VirtualThermostat/off_icon.png")
+			state("Updating", label:"", icon: "https://dev.ryancarmichael.com/VirtualThermostat/cmd_working.png")
 		}
         
 		standardTile("heatBtn", "device.canHeat", width:1, height:1, decoration: "flat") {
-			state("Heat", action: "heatbtn", icon: "https://raw.githubusercontent.com/tonesto7/nest-manager/master/Images/Devices/heat_icon.png")
+			state("Heat", action: "heatbtn", icon: "https://dev.ryancarmichael.com/VirtualThermostat/heat_icon.png")
 			state "false", label: ''
 		}
         
-		standardTile("refresh", "device.refresh", width:2, height:2, decoration: "flat") {
+		standardTile("coolBtn", "device.canCool", width:1, height:1, decoration: "flat") {
+			state("Cool", action: "coolbtn", icon: "https://dev.ryancarmichael.com/VirtualThermostat/cool_icon.png")
+			state "false", label: ''
+		}
+        
+		standardTile("offBtn", "device.off", width:1, height:2, decoration: "flat") {
+			state("Off", action: "offbtn", icon: "https://dev.ryancarmichael.com/VirtualThermostat/off_icon.png")
+		}
+        
+		standardTile("refresh", "device.refresh", width:1, height:2, decoration: "flat") {
 			state "Refresh", action:"refresh.refresh", icon:"st.secondary.refresh"
 		}
         
@@ -95,25 +113,49 @@ metadata {
 		}
         
 		standardTile("heatingSetpointUp", "device.thermostatSetpoint", width: 1, height: 1, canChangeIcon: true, decoration: "flat") {
-			state "default", label: '', action:"heatingSetpointUp", icon:"https://raw.githubusercontent.com/tonesto7/nest-manager/master/Images/Devices/heat_arrow_up.png"
+			state "default", label: '', action:"heatingSetpointUp", icon:"https://dev.ryancarmichael.com/VirtualThermostat/heat_arrow_up.png"
 			state "", label: ''
 		}
         
 		standardTile("heatingSetpointDown", "device.thermostatSetpoint",  width: 1, height: 1, canChangeIcon: true, decoration: "flat") {
-			state "default", label:'', action:"heatingSetpointDown", icon:"https://raw.githubusercontent.com/tonesto7/nest-manager/master/Images/Devices/heat_arrow_down.png"
+			state "default", label:'', action:"heatingSetpointDown", icon:"https://dev.ryancarmichael.com/VirtualThermostat/heat_arrow_down.png"
 			state "", label: ''
 		}
         
-		controlTile("heatSliderControl", "device.thermostatSetpoint", "slider", height: 1, width: 3, range: getRange(), inactiveLabel: false) {
+		controlTile("heatSliderControl", "device.thermostatSetpoint", "slider", height: 1, width: 4, range: getRange(), inactiveLabel: false) {
 			state "default", action:"setHeatingSetpoint", backgroundColor:"#FF3300"
+			state "", label: ''
+		}
+        
+		valueTile("coolingSetpoint", "device.thermostatSetpoint", width: 1, height: 1) {
+			state("coolingSetpoint", label:'${currentValue}', unit: unitString(), foregroundColor: "#FFFFFF",
+				backgroundColors: [ [value: 0, color: "#FFFFFF"], [value: 7, color: "#0022FF"], [value: 15, color: "#0022FF"] ])
+			state("disabled", label: '', foregroundColor: "#FFFFFF", backgroundColor: "#FFFFFF")
+		}
+        
+		standardTile("coolingSetpointUp", "device.thermostatSetpoint", width: 1, height: 1, canChangeIcon: true, decoration: "flat") {
+			state "default", label: '', action:"coolingSetpointUp", icon:"https://dev.ryancarmichael.com/VirtualThermostat/cool_arrow_up.png"
+			state "", label: ''
+		}
+        
+		standardTile("coolingSetpointDown", "device.thermostatSetpoint",  width: 1, height: 1, canChangeIcon: true, decoration: "flat") {
+			state "default", label:'', action:"coolingSetpointDown", icon:"https://dev.ryancarmichael.com/VirtualThermostat/cool_arrow_down.png"
+			state "", label: ''
+		}
+        
+		controlTile("coolSliderControl", "device.thermostatSetpoint", "slider", height: 1, width: 4, range: getRange(), inactiveLabel: false) {
+			state "default", action:"setCoolingSetpoint", backgroundColor:"#0022ff"
 			state "", label: ''
 		}
 
 		main("temp2")
         
 		details( ["temperature", "thermostatMode",
-				"heatingSetpointDown", "heatingSetpoint", "heatingSetpointUp",
-				"heatSliderControl", "offBtn", "heatBtn", "refresh"] )
+				"heatingSetpointDown", "heatingSetpoint", "heatingSetpointUp", "heatBtn",
+				"heatSliderControl", 
+				"refresh", "offBtn",
+				"coolingSetpointDown", "coolingSetpoint", "coolingSetpointUp","coolBtn",
+				"coolSliderControl"] )
 	}
 }
 
@@ -141,10 +183,12 @@ private initialize() {
     log.trace "Executing 'initialize'"
     
     setHeatingSetpoint(defaultTemp())
+    setCoolingSetpoint(defaultTemp())
     setVirtualTemperature(defaultTemp())
     setHeatingStatus("off")
+    setCoolingStatus("off")
     setThermostatMode("off")
-    sendEvent(name:"supportedThermostatModes",    value: ['heat', 'off'], displayed: false)
+    sendEvent(name:"supportedThermostatModes",    value: ['heat', 'cool', 'off'], displayed: false)
     sendEvent(name:"supportedThermostatFanModes", values: [], displayed: false)
     
 	state.tempScale = "C"
@@ -179,7 +223,7 @@ def getTempColors() {
 }
 
 def unitString() {  return shouldReportInCentigrade() ? "C": "F" }
-def defaultTemp() { return shouldReportInCentigrade() ? 20 : 70 }
+def defaultTemp() { return shouldReportInCentigrade() ? 45 : 70 }
 def lowRange() { return shouldReportInCentigrade() ? 9 : 45 }
 def highRange() { return shouldReportInCentigrade() ? 45 : 113 }
 def getRange() { return "${lowRange()}..${highRange()}" }
@@ -210,6 +254,28 @@ def heatingSetpointDown() {
 	setHeatingSetpoint(hsp - 1.0)
 }
 
+def setCoolingSetpoint(temp) {
+	def ctsp = device.currentValue("thermostatSetpoint");
+    def ccsp = device.currentValue("coolingSetpoint");
+
+    if(ctsp != temp || ccsp != temp) {
+        sendEvent(name:"thermostatSetpoint", value: temp, unit: unitString(), displayed: false)
+        sendEvent(name:"coolingSetpoint", value: temp, unit: unitString())
+    }
+}
+
+def coolingSetpointUp() {
+	def csp = device.currentValue("thermostatSetpoint")
+	if(csp + 1.0 > highRange()) return;
+	setCoolingSetpoint(csp + 1.0)
+}
+
+def coolingSetpointDown() {
+	def csp = device.currentValue("thermostatSetpoint")
+	if(csp - 1.0 < lowRange()) return;
+	setCoolingSetpoint(csp - 1.0)
+}
+
 def levelUp() {
 	def hsp = device.currentValue("thermostatSetpoint")
 	if(hsp + 1.0 > highRange()) return;
@@ -228,7 +294,7 @@ def parse(data) {
 
 def refresh() {
     log.trace "Executing refresh"
-    sendEvent(name: "supportedThermostatModes",    value: ['heat', 'off'], displayed: false)
+    sendEvent(name: "supportedThermostatModes",    value: ['heat', 'cool', 'off'], displayed: false)
     sendEvent(name: "supportedThermostatFanModes", values: [], displayed: false)
 }
 
@@ -248,6 +314,10 @@ def getHeatingSetpoint() {
 	return device.currentValue("heatingSetpoint")
 }
 
+def getCoolingSetpoint() {
+	return device.currentValue("coolingSetpoint")
+}
+
 def poll() {
 }
 
@@ -257,6 +327,10 @@ def offbtn() {
 
 def heatbtn() {
 	setThermostatMode("heat")
+}
+
+def coolbtn() {
+	setThermostatMode("cool")
 }
 
 def setThermostatMode(mode) {
@@ -279,6 +353,11 @@ def setVirtualTemperature(temp) {
 }
 
 def setHeatingStatus(string) {
+	if(device.currentValue("thermostatOperatingState") != string) {
+		sendEvent(name:"thermostatOperatingState", value: string)
+    }
+}
+def setCoolingStatus(string) {
 	if(device.currentValue("thermostatOperatingState") != string) {
 		sendEvent(name:"thermostatOperatingState", value: string)
     }
