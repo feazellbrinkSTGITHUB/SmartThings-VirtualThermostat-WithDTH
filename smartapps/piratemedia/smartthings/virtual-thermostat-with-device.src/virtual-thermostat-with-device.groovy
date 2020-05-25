@@ -2,10 +2,10 @@ definition(
     name: "Virtual Thermostat With Device",
     namespace: "piratemedia/smartthings",
     author: "Eliot S.",
-    description: "Control a heater in conjunction with any temperature sensor, like a SmartSense Multi.",
+    description: "Control a reverse-cycle air conditioner in conjunction with any temperature sensor, like a SmartSense Multi.",
     category: "Green Living",
-    iconUrl: "https://raw.githubusercontent.com/eliotstocker/SmartThings-VirtualThermostat-WithDTH/master/logo-small.png",
-    iconX2Url: "https://raw.githubusercontent.com/eliotstocker/SmartThings-VirtualThermostat-WithDTH/master/logo.png",
+    iconUrl: "https://dev.ryancarmichael.com/VirtualThermostat/logo-small.png",
+    iconX2Url: "https://dev.ryancarmichael.com/VirtualThermostat/logo.png",
 	parent: "piratemedia/smartthings:Virtual Thermostat Manager",
 )
 
@@ -13,16 +13,16 @@ preferences {
 	section("Choose a temperature sensor(s)... (If multiple sensors are selected, the average value will be used)"){
 		input "sensors", "capability.temperatureMeasurement", title: "Sensor", multiple: true
 	}
-	section("Select the heater outlet(s)... "){
+	section("Select the reverse-cycle air conditioner outlet(s)... "){
 		input "outlets", "capability.switch", title: "Outlets", multiple: true
 	}
-	section("Only heat when contact(s) arent open (optional, leave blank to not require contact sensor)..."){
+	section("Only heat/cool when contact(s) aren’t open (optional, leave blank to not require contact sensor)..."){
 		input "motion", "capability.contactSensor", title: "Contact", required: false, multiple: true
 	}
 	section("Never go below this temperature: (optional)"){
 		input "emergencySetpoint", "decimal", title: "Emergency Temp", required: false
 	}
-	section("Temperature Threshold (Don't allow heating to go above or bellow this amount from set temperature)") {
+	section("Temperature Threshold (Don't allow heating/cooling to go above or below this amount from set temperature)") {
 		input "threshold", "decimal", title: "Temperature Threshold", required: false, defaultValue: 1.0
 	}
 }
@@ -40,7 +40,7 @@ def createDevice() {
 
     log.debug "create device with id: pmvt$state.deviceID, named: $label" //, hub: $sensor.hub.id"
     try {
-        thermostat = addChildDevice("piratemedia/smartthings", "Virtual Thermostat Device", "pmvt" + state.deviceID, null, [label: label, name: label, completedSetup: true])
+        thermostat = addChildDevice("piratemedia/smartthings", "Virtual Thermostat", "pmvt" + state.deviceID, null, [label: label, name: label, completedSetup: true])
     } catch(e) {
         log.error("caught exception", e)
     }
@@ -48,7 +48,7 @@ def createDevice() {
 }
 
 def shouldHeatingBeOn(thermostat) {    
-    //if temperature is bellow emergency setpoint
+    //if temperature is below emergency setpoint
     if(emergencySetpoint && emergencySetpoint > getAverageTemperature()) {
     	return true;
     }
@@ -67,7 +67,7 @@ def shouldHeatingBeOn(thermostat) {
         }
     }
     
-    //average temperature across all temperateure sensors is above set point
+    //average temperature across all temperature sensors is above set point
     if (thermostat.currentValue("heatingSetpoint") - getAverageTemperature() <= threshold) {
     	return false;
     }
@@ -75,8 +75,36 @@ def shouldHeatingBeOn(thermostat) {
     return true;
 }
 
+def shouldCoolingBeOn(thermostat) {    
+    //if temperature is above emergency setpoint
+    if(emergencySetpoint && emergencySetpoint < getAverageTemperature()) {
+    	return true;
+    }
+    
+	//if thermostat isnt set to cool
+	if(thermostat.currentValue('thermostatMode') != "cool") {
+    	return false;
+    }
+    
+    //if any of the contact sensors are open
+    if(motion) {
+    	for(m in motion) {
+			if(m.currentValue('contact') == "open") {
+            	return false;
+            }
+        }
+    }
+    
+    //average temperature across all temperature sensors is below set point
+    if (thermostat.currentValue("coolingSetpoint") - getAverageTemperature()>= threshold) {
+    	return false;
+    }
+    
+    return true;
+}
+
 def getHeatingStatus(thermostat) {    
-    //if temperature is bellow emergency setpoint
+    //if temperature is below emergency setpoint
     if(emergencySetpoint > getAverageTemperature()) {
     	return 'heating';
     }
@@ -95,12 +123,40 @@ def getHeatingStatus(thermostat) {
         }
     }
     
-    //average temperature across all temperateure sensors is above set point
+    //average temperature across all temperature sensors is above set point
     if (thermostat.currentValue("thermostatSetpoint") - getAverageTemperature() <= threshold) {
     	return 'idle';
     }
     
     return 'heat';
+}
+
+def getCoolingStatus(thermostat) {    
+    //if temperature is above emergency setpoint
+    if(emergencySetpoint < getAverageTemperature()) {
+    	return 'cooling';
+    }
+    
+	//if thermostat isnt set to cool
+	if(thermostat.currentValue('thermostatMode') != "cool") {
+    	return 'idle';
+    }
+    
+    //if any of the contact sensors are open
+    if(motion) {
+    	for(m in motion) {
+			if(m.currentValue('contact') == "open") {
+            	return 'pending cool';
+            }
+        }
+    }
+    
+    //average temperature across all temperature sensors is above set point
+    if (thermostat.currentValue("thermostatSetpoint") - getAverageTemperature() <= threshold) {
+    	return 'idle';
+    }
+    
+    return 'cool';
 }
 
 def getAverageTemperature() {
@@ -123,14 +179,40 @@ def handleChange() {
 
 	//update device
     thermostat.setHeatingStatus(getHeatingStatus(thermostat))
+    thermostat.setCoolingStatus(getCoolingStatus(thermostat))
     thermostat.setVirtualTemperature(getAverageTemperature())
     
+
+    if(thermostat.currentValue('thermostatMode') == "off") {
+    //set outlet off
+    	outlets.off()
+}
+
+    if(thermostat.currentValue('thermostatMode') == "heat") {
     //set heater outlet
     if(shouldHeatingBeOn(thermostat)) {
     	outlets.on()
     } else {
     	outlets.off()
     }
+
+
+} else {
+
+
+
+
+    if(thermostat.currentValue('thermostatMode') == "cool") {
+    //set cooler outlet
+    if(shouldCoolingBeOn(thermostat)) {
+    	outlets.on()
+    } else {
+    	outlets.off()
+    }
+
+
+}
+}     
 }
 
 def getThermostat() {
@@ -156,7 +238,7 @@ def updated()
         thermostat = createDevice()
     }
     
-    //subscribe to temperatuire changes
+    //subscribe to temperature changes
 	subscribe(sensors, "temperature", temperatureHandler)
     
     //subscribe to contact sensor changes
