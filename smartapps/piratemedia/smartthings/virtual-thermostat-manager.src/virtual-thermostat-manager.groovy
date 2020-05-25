@@ -2,10 +2,10 @@ definition(
     name: "Virtual Thermostat Manager",
     namespace: "piratemedia/smartthings",
     author: "Eliot S.",
-    description: "Control a heater in conjunction with any temperature sensor like a SmartSense Multi, to create a thermostat device in SmartThings",
+    description: "Control a reverse-cycle air conditioner in conjunction with any temperature sensor like a SmartSense Multi, to create a thermostat device in SmartThings",
     category: "Green Living",
-    iconUrl: "https://raw.githubusercontent.com/eliotstocker/SmartThings-VirtualThermostat-WithDTH/master/logo-small.png",
-    iconX2Url: "https://raw.githubusercontent.com/eliotstocker/SmartThings-VirtualThermostat-WithDTH/master/logo.png",
+    iconUrl: "https://raw.githubusercontent.com/racarmichael/SmartThings-VirtualThermostat-WithDTH/master/images/logo-small.png",
+    iconX2Url: "https://raw.githubusercontent.com/racarmichael/SmartThings-VirtualThermostat-WithDTH/master/images/logo.png",
 	singleInstance: true
 )
 
@@ -14,8 +14,12 @@ preferences {
         section("Devices") {
         }
         section {
-            app(name: "thermostats", appName: "Virtual Thermostat With Device", namespace: "piratemedia/smartthings", title: "New Thermostat", multiple: true)
+            app(name: "thermostat", appName: "Virtual Thermostat With Device", namespace: "piratemedia/smartthings", title: "New Thermostat", multiple: true)
         }
+        section {
+            app(name: "heater", appName: "Virtual Heater With Device", namespace: "piratemedia/smartthings", title: "New Heater", multiple: true)
+        }
+
     }
 }
 
