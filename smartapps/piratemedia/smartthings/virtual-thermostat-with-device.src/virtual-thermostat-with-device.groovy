@@ -4,8 +4,8 @@ definition(
     author: "Eliot S.",
     description: "Control a reverse-cycle air conditioner in conjunction with any temperature sensor, like a SmartSense Multi.",
     category: "Green Living",
-    iconUrl: "https://dev.ryancarmichael.com/VirtualThermostat/logo-small.png",
-    iconX2Url: "https://dev.ryancarmichael.com/VirtualThermostat/logo.png",
+    iconUrl: "https://raw.githubusercontent.com/racarmichael/SmartThings-VirtualThermostat-WithDTH/master/images/logo-small.png",
+    iconX2Url: "https://raw.githubusercontent.com/racarmichael/SmartThings-VirtualThermostat-WithDTH/master/images/logo.png",
 	parent: "piratemedia/smartthings:Virtual Thermostat Manager",
 )
 
