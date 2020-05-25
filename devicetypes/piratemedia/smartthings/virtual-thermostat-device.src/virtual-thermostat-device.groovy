@@ -77,29 +77,29 @@ metadata {
 		}
         
 		valueTile("temp2", "device.temperature", width: 2, height: 2, decoration: "flat") {
-			state("default", label:'${currentValue}°', icon:"https://dev.ryancarmichael.com/VirtualThermostat/device.png",
+			state("default", label:'${currentValue}°', icon:"https://raw.githubusercontent.com/racarmichael/SmartThings-VirtualThermostat-WithDTH/master/images/device.png",
 					backgroundColors: getTempColors(), canChangeIcon: true)
 		}
         
 		standardTile("thermostatMode", "device.thermostatMode", width:2, height:2, decoration: "flat") {
-			state("heat", 	action:"changeMode", nextState: "updating", icon: "https://dev.ryancarmichael.com/VirtualThermostat/heat_icon.png")
-			state("cool", 	action:"changeMode", nextState: "updating", icon: "https://dev.ryancarmichael.com/VirtualThermostat/cool_icon.png")
-			state("off", 	action:"changeMode", nextState: "updating", icon: "https://dev.ryancarmichael.com/VirtualThermostat/off_icon.png")
-			state("Updating", label:"", icon: "https://dev.ryancarmichael.com/VirtualThermostat/cmd_working.png")
+			state("heat", 	action:"changeMode", nextState: "updating", icon: "https://raw.githubusercontent.com/racarmichael/SmartThings-VirtualThermostat-WithDTH/master/images/heat_icon.png")
+			state("cool", 	action:"changeMode", nextState: "updating", icon: "https://raw.githubusercontent.com/racarmichael/SmartThings-VirtualThermostat-WithDTH/master/images/cool_icon.png")
+			state("off", 	action:"changeMode", nextState: "updating", icon: "https://raw.githubusercontent.com/racarmichael/SmartThings-VirtualThermostat-WithDTH/master/images/off_icon.png")
+			state("Updating", label:"", icon: "https://raw.githubusercontent.com/racarmichael/SmartThings-VirtualThermostat-WithDTH/master/images/cmd_working.png")
 		}
         
 		standardTile("heatBtn", "device.canHeat", width:1, height:1, decoration: "flat") {
-			state("Heat", action: "heatbtn", icon: "https://dev.ryancarmichael.com/VirtualThermostat/heat_icon.png")
+			state("Heat", action: "heatbtn", icon: "https://raw.githubusercontent.com/racarmichael/SmartThings-VirtualThermostat-WithDTH/master/images/heat_icon.png")
 			state "false", label: ''
 		}
         
 		standardTile("coolBtn", "device.canCool", width:1, height:1, decoration: "flat") {
-			state("Cool", action: "coolbtn", icon: "https://dev.ryancarmichael.com/VirtualThermostat/cool_icon.png")
+			state("Cool", action: "coolbtn", icon: "https://raw.githubusercontent.com/racarmichael/SmartThings-VirtualThermostat-WithDTH/master/images/cool_icon.png")
 			state "false", label: ''
 		}
         
 		standardTile("offBtn", "device.off", width:1, height:2, decoration: "flat") {
-			state("Off", action: "offbtn", icon: "https://dev.ryancarmichael.com/VirtualThermostat/off_icon.png")
+			state("Off", action: "offbtn", icon: "https://raw.githubusercontent.com/racarmichael/SmartThings-VirtualThermostat-WithDTH/master/images/off_icon.png")
 		}
         
 		standardTile("refresh", "device.refresh", width:1, height:2, decoration: "flat") {
@@ -113,12 +113,12 @@ metadata {
 		}
         
 		standardTile("heatingSetpointUp", "device.thermostatSetpoint", width: 1, height: 1, canChangeIcon: true, decoration: "flat") {
-			state "default", label: '', action:"heatingSetpointUp", icon:"https://dev.ryancarmichael.com/VirtualThermostat/heat_arrow_up.png"
+			state "default", label: '', action:"heatingSetpointUp", icon:"https://raw.githubusercontent.com/racarmichael/SmartThings-VirtualThermostat-WithDTH/master/images/heat_arrow_up.png"
 			state "", label: ''
 		}
         
 		standardTile("heatingSetpointDown", "device.thermostatSetpoint",  width: 1, height: 1, canChangeIcon: true, decoration: "flat") {
-			state "default", label:'', action:"heatingSetpointDown", icon:"https://dev.ryancarmichael.com/VirtualThermostat/heat_arrow_down.png"
+			state "default", label:'', action:"heatingSetpointDown", icon:"https://raw.githubusercontent.com/racarmichael/SmartThings-VirtualThermostat-WithDTH/master/images/heat_arrow_down.png"
 			state "", label: ''
 		}
         
@@ -134,12 +134,12 @@ metadata {
 		}
         
 		standardTile("coolingSetpointUp", "device.thermostatSetpoint", width: 1, height: 1, canChangeIcon: true, decoration: "flat") {
-			state "default", label: '', action:"coolingSetpointUp", icon:"https://dev.ryancarmichael.com/VirtualThermostat/cool_arrow_up.png"
+			state "default", label: '', action:"coolingSetpointUp", icon:"https://raw.githubusercontent.com/racarmichael/SmartThings-VirtualThermostat-WithDTH/master/images/cool_arrow_up.png"
 			state "", label: ''
 		}
         
 		standardTile("coolingSetpointDown", "device.thermostatSetpoint",  width: 1, height: 1, canChangeIcon: true, decoration: "flat") {
-			state "default", label:'', action:"coolingSetpointDown", icon:"https://dev.ryancarmichael.com/VirtualThermostat/cool_arrow_down.png"
+			state "default", label:'', action:"coolingSetpointDown", icon:"https://raw.githubusercontent.com/racarmichael/SmartThings-VirtualThermostat-WithDTH/master/images/cool_arrow_down.png"
 			state "", label: ''
 		}
         
